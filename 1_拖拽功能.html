@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用js实现图片拖拽功能</title>
+    <style>
+        *{
+            margin: 0px;
+        }
+        .main{
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        .img{
+            width: 100px;
+            height: 100px;
+            user-select:none;
+        }
+        .bg1{
+            background: url("./image/Mars.png") 100px/100px;
+        }
+        .bg2{
+            background: url("./image/Mercury.png") 100px/100px;
+        }
+        .bg3{
+            background: url("./image/Moon.png") 100px/100px;
+        }
+        .zw{
+            width: 100px;
+            height: 100px;
+            background-color: #666;
+            display: inline-block;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="img bg1" data-index="0"></div>
+        <div class="img bg2" data-index="1"></div>
+        <div class="img bg3" data-index="2"></div>
+        <div class="zw"></div>
+    </div>
+    <script>
+        let main = document.querySelector('.main');
+        let zw = document.querySelector('.zw');
+        let imgs = document.querySelectorAll('.img');
+        let index;
+        let isDrag = false;
+        let py = {
+            left: 0,
+            top: 0
+        }
+        function move(obj, x, y){
+            obj.setAttribute('style', `pointer-events: none;position: absolute; left:${x}px; top: ${y}px`)
+        }
+        document.addEventListener('mousedown',(e)=>{
+            index = e.target.dataset.index;
+            if(index && !isDrag){
+                py.left = e.pageX - imgs[index].offsetLeft
+                py.top = e.pageY - imgs[index].offsetTop
+                zw.setAttribute('style', 'display: block');
+                main.insertBefore(zw, imgs[index]);
+                move(imgs[index], e.pageX-py.left, e.pageY-py.top)
+            }
+            isDrag = true
+        })
+        document.addEventListener('mousemove',(e)=>{
+            if(index && isDrag){
+                move(imgs[index], e.pageX-py.left, e.pageY-py.top)
+            }
+        })
+        document.addEventListener('mouseup',(e)=>{
+            isDrag = false;
+            zw.setAttribute('style', 'display: none');
+            debugger
+            if(imgs[index]){
+                imgs[index].setAttribute('style', '');
+                main.insertBefore(imgs[index],zw);
+            }
+        })
+        imgs.forEach(v=>{
+            v.addEventListener('mouseenter',(e)=>{
+                if(isDrag){
+                    let list = [...main.children];
+                    let imgIndex = list.findIndex(el => v == el)
+                    let zwIndex = list.findIndex(el => zw == el)
+                    if(imgIndex > zwIndex){
+                        main.insertBefore(v, zw)
+                    }else{
+                        main.insertBefore(zw,v)
+                    }
+                }
+            })
+        })
+    </script>
+</body> 
+</html>
